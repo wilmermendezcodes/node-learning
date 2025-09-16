@@ -4,15 +4,19 @@
     "body": "Novel of all times"
   },
   {
-    "title": "Brothers Karamazov",
-    "body": "good book!"
-  },
-  {
-    "title": "The Shining",
-    "body": "Movie of all time!"
-  },
-  {
     "title": "War and Peace",
     "body": "Huge Book!"
+  },
+  {
+    "title": "Brothers Karamazov",
+    "body": "a long book!"
+  },
+  {
+    "title": "Don Quixote",
+    "body": "book about chivalry and humor that occurs on day-to-day life"
+  },
+  {
+    "title": "Node Course",
+    "body": "textbooks"
   }
 ]
