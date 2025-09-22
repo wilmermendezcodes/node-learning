@@ -4,28 +4,23 @@ const path = require("path");
 
 dotenv.config({
   // Load the .env placed at the repo root (two levels up from this file)
-  path: path.resolve(__dirname, "../../.env"),
+  path: path.resolve(__dirname, "../../../.env"),
 });
-console.log(process.env.GEOAPIFY_KEY);
 
 const { GEOAPIFY_URL: geoApifyURL, GEOAPIFY_KEY: geoApifyKey } = process.env;
 const { WEATHERSTACK_URL: weatherStackURL, WEATHERSTACK_KEY: weatherStackKey } = process.env;
 
-//async/await and promise version
-(async () => {
-    const { latitude, longitude } = await fetchCoordinates("Felisa, Bacolod");
+const getWeather = (latitude, longitude, callback) => {
     const url = `${weatherStackURL}?access_key=${weatherStackKey}&query=${latitude},${longitude}&units=m`;
     request({ url: url, json: true }, (error, response) => {
-        console.log(url);
         if (error) {
-            console.log("Unable to connect to weather service!");
+            callback("Unable to connect to weather service!", undefined);
         } else if (response.body.error) {
-            console.log("Unable to find location");
+            callback("Unable to find location", undefined);
         } else {
             const data = response.body;
             console.log(data);
-            //console.log(data.current);
-            console.log(
+            callback(undefined,
                 data.current.weather_descriptions[0] +
                 ". It is currently " +
                 data.current.temperature +
@@ -33,27 +28,27 @@ const { WEATHERSTACK_URL: weatherStackURL, WEATHERSTACK_KEY: weatherStackKey } =
                 data.current.feelslike +
                 " degrees out."
             );
-        }
-    });
-})();
-
-
-function fetchCoordinates(loc) {
-    const url = `${geoApifyURL}?text=${encodeURIComponent(loc)}&apiKey=${geoApifyKey}`;
-    console.log(url);
-    return new Promise((resolve, reject) => {
-        request({ url: url, json: true }, (error, response) => {
-            if (error) {
-                reject("Unable to connect to location services!");
-            } else if (response.body.features.length === 0) {
-                reject("Unable to find location. Try another search.");
-            } else {
-                const data = response.body.features[0];
-                resolve({
-                    latitude: data.geometry.coordinates[1],
-                    longitude: data.geometry.coordinates[0]
-                });
-            }
-        });
+        }   
     });
 }
+
+const fetchCoordinates = (loc, callback) => {
+    const url = `${geoApifyURL}?text=${encodeURIComponent(loc)}&apiKey=${geoApifyKey}`;
+    console.log(url);
+    request({ url: url, json: true }, (error, response) => {
+        if (error) {
+            callback("Unable to connect to location services!", undefined);
+        } else if (response.body.features.length === 0) {
+            callback("Unable to find location. Try another search.", undefined);
+        }
+        else {
+            const data = response.body.features[0];
+            callback(undefined, {
+                latitude: data.geometry.coordinates[1],
+                longitude: data.geometry.coordinates[0]
+            });
+        }
+    });
+}
+
+module.exports = { fetchCoordinates, getWeather };
